@@ -1,4 +1,6 @@
 import {
+    Box,
+    Button,
     Paper,
     Table,
     TableBody,
@@ -6,6 +8,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    TextField,
     Typography,
     styled,
     tableCellClasses,
@@ -18,27 +21,61 @@ import {
     address: string;
     email: string;
     phone: string;
+    iban: string; 
+    categoryCode: string; 
+    categoryDescription: string;
   }
   
   export default function CustomerListPage() {
     const [list, setList] = useState<CustomerListQuery[]>([]);
+
+    const [nameFilter, setNameFilter] = useState<string>(""); 
+    const [emailFilter, setEmailFilter] = useState<string>("");
+
   
-    useEffect(() => {
-      fetch("/api/Customers/list")
-        .then((response) => {
-          return response.json();
-        })
+const fetchData = () => {
+      const params = new URLSearchParams();
+  
+      if (nameFilter) params.append("Name", nameFilter);
+      if (emailFilter) params.append("Email", emailFilter);
+
+      fetch(`/api/Customers/list?${params.toString()}`)
+        .then((response) =>  response.json())
         .then((data) => {
           setList(data as CustomerListQuery[]);
         });
+    };
+    
+    useEffect(() => {
+      fetchData(); 
     }, []);
+
   
     return (
       <>
         <Typography variant="h4" sx={{ textAlign: "center", mt: 4, mb: 4 }}>
           Customers
         </Typography>
-  
+
+        <Box sx={{ display: "flex", gap: 2, mb: 3, justifyContent: "center" }}>
+        <TextField
+          label="Filter by Name"
+          variant="outlined"
+          value={nameFilter}
+          onChange={(e) => setNameFilter(e.target.value)} 
+        />
+        <TextField
+          label="Filter by Email"
+          variant="outlined"
+          value={emailFilter}
+          onChange={(e) => setEmailFilter(e.target.value)} 
+        />
+        <Button variant="contained" color="primary" onClick={fetchData}>
+          Apply Filters
+        </Button>
+        </Box>
+
+
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
@@ -47,6 +84,9 @@ import {
                 <StyledTableHeadCell>Address</StyledTableHeadCell>
                 <StyledTableHeadCell>Email</StyledTableHeadCell>
                 <StyledTableHeadCell>Phone</StyledTableHeadCell>
+                <StyledTableHeadCell>IBAN</StyledTableHeadCell>
+                <StyledTableHeadCell>Category Code</StyledTableHeadCell>
+                <StyledTableHeadCell>Category Description</StyledTableHeadCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -59,6 +99,9 @@ import {
                   <TableCell>{row.address}</TableCell>
                   <TableCell>{row.email}</TableCell>
                   <TableCell>{row.phone}</TableCell>
+                  <TableCell>{row.iban}</TableCell>
+                  <TableCell>{row.categoryCode}</TableCell>
+                  <TableCell>{row.categoryDescription}</TableCell> 
                 </TableRow>
               ))}
             </TableBody>
