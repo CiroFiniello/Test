@@ -50,7 +50,35 @@ const fetchData = () => {
       fetchData(); 
     }, []);
 
-  
+    const exportToXML = () => {
+      const xmlData = `<?xml version="1.0" encoding="UTF-8"?>
+    <Customers>
+      ${list.map(
+        (customer) => `
+      <Customer>
+        <Id>${customer.id}</Id>
+        <Name>${customer.name}</Name>
+        <Address>${customer.address}</Address>
+        <Email>${customer.email}</Email>
+        <Phone>${customer.phone}</Phone>
+        <IBAN>${customer.iban}</IBAN>
+        <CategoryCode>${customer.categoryCode}</CategoryCode>
+        <CategoryDescription>${customer.categoryDescription}</CategoryDescription>
+      </Customer>`
+      ).join("")}
+    </Customers>`;
+
+      const blob = new Blob([xmlData], { type: "application/xml" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "customers.xml";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+
     return (
       <>
         <Typography variant="h4" sx={{ textAlign: "center", mt: 4, mb: 4 }}>
@@ -73,9 +101,14 @@ const fetchData = () => {
         <Button variant="contained" color="primary" onClick={fetchData}>
           Apply Filters
         </Button>
+
+        <Button variant="contained" color="secondary" onClick={exportToXML}>
+          Export to XML
+        </Button>
+        
         </Box>
 
-
+        
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
